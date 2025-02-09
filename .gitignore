@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.sqlite3
+*.pyo
+*.pyc
+.mypy_cache/
+
+# Django
+*.log
+*.pot
+*.pyc
+*.swp
+db.sqlite3
+media/
+staticfiles/
+.env
+
+# Virtual Environments
+venv/
+env/
+
+# macOS
+.DS_Store
+
+# Docker
+docker-compose.override.yml
+.dockerignore
+
+# PostgreSQL
+pgdata/
+
+# Redis
+dump.rdb
+
+# VSCode & JetBrains (IDE settings)
+.vscode/
+.idea/

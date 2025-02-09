@@ -1,0 +1,47 @@
+services:
+  django:
+    build: .
+    container_name: url_shortner_app
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - pgdb
+      - redis
+    env_file:
+      - .env
+
+  celery:
+    build: .
+    container_name: celery_worker
+    command: celery -A config worker --loglevel=info
+    depends_on:
+      - redis
+      - pgdb
+
+  pgdb:
+    image: postgres
+    container_name: pgdb
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+    volumes:
+      - pgdata:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:latest
+    container_name: redis_cache
+    restart: always
+    ports:
+      - "6379:6379"
+
+volumes:
+  pgdata:
