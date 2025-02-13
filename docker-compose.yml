@@ -1,8 +1,9 @@
 services:
+  # main project
   django:
     build: .
     container_name: url_shortner_app
-    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --reload
     volumes:
       - .:/app
     ports:
@@ -13,6 +14,7 @@ services:
     env_file:
       - .env
 
+  # celery to manage the workers for doing task
   celery:
     build: .
     container_name: celery_worker
@@ -21,6 +23,21 @@ services:
       - redis
       - pgdb
 
+  # celery beat for periodic task
+  celery-beat:
+    build: .
+    container_name: celery_beat
+    command: celery -A config beat --loglevel=info
+    depends_on:
+      - redis
+      - pgdb
+      - django
+      - celery
+    volumes:
+      - .:/app
+    restart: always
+
+  # database
   pgdb:
     image: postgres
     container_name: pgdb
@@ -35,6 +52,13 @@ services:
       - pgdata:/var/lib/postgresql/data/
     ports:
       - "5432:5432"
+
+  # web interface for postgresql
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
 
   redis:
     image: redis:latest
