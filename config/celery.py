@@ -16,7 +16,12 @@ app.conf.beat_schedule = {
     "delete_old_urls": {
         "task": "api.tasks.delete_expired_urls",
         "schedule": crontab(minute=0, hour=0),  # Runs at midnight
-    }
+    },
+    # adds click count every 5 minutes to prevent performance issue
+    "added_click_count": {
+        "task": "api.tasks.update_click_counts",
+        "schedule": crontab(minute="*/15"),  # runs every 25 minutes
+    },
 }
 
 

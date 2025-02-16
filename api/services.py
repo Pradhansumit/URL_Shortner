@@ -1,8 +1,9 @@
 import hashlib
 import base64
 from django.conf import settings
+from django.core.cache import cache
 from api.models import ShortURL, URL_Logs
-import datetime
+from django.utils.timezone import now
 
 from api.tasks import add_url_information
 
@@ -40,15 +41,37 @@ def generate_short_url(original_url):
 def get_original_url(short_url):
     """Returns the original url from the base64 (hash) code that is with the url"""
 
-    shortURLobj = ShortURL.objects.filter(hash_code__istartswith=short_url).first()
-    if not shortURLobj:
-        return None
-    # adds last clicked everytime user clicks the link
-    shortURLobj.last_clicked = datetime.datetime.now()
-    shortURLobj.click_count += 1
-    shortURLobj.save()
+    cache_key = f"short_url:{short_url}"  # retrieving cached url
+    click_key = f"click_count:{short_url}"  # click count key
+    last_visited_key = f"last_visited:{short_url}"  # key for storing last visited field
 
-    original_url = shortURLobj.original_url
+    original_url = cache.get(cache_key)
+
+    if original_url is None:
+        shortURLobj = ShortURL.objects.filter(hash_code__istartswith=short_url).first()
+        if not shortURLobj:
+            return None
+        original_url = shortURLobj.original_url
+
+        cache.set(cache_key, original_url, timeout=60 * 60)  # cache for 1 hour
+
+    cache.set(last_visited_key, now().isoformat(), timeout=60 * 60 * 24)
+
+    if cache.get(click_key) is None:
+        cache.set(click_key, 0, timeout=60 * 60)
+
+    click_count = cache.incr(click_key)
+
+    if click_count > 100:
+        cache.touch(
+            cache_key, timeout=60 * 60 * 24
+        )  # if particular url is accessed more than other than expiration time should extend to 24 hours
+
+    # adds last clicked everytime user clicks the link
+    # shortURLobj.last_clicked = datetime.datetime.now() # added to comment because it has been transferred to celery
+    # shortURLobj.click_count += 1
+    # shortURLobj.save()
+    print(f"Click Count: {click_count}, Last Visited: {now()} for {short_url}")
     return original_url
 
 
