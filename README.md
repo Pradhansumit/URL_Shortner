@@ -1,4 +1,4 @@
-# URL Shortener (Django, PostgreSQL, Redis, Celery, Docker)
+# Shortify (Django, PostgreSQL, Redis, Celery, Docker)
 
 🚀 A **scalable URL shortening service** built with Django, PostgreSQL, Redis, and Celery. Supports **async tasks, caching, and background analytics processing** using Dockerized microservices.
 
