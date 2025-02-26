@@ -29,8 +29,8 @@
 ### 1️⃣ Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/url-shortener.git
-cd url-shortener
+git clone https://github.com/Pradhansumit/URL_Shortner.git
+cd URL_Shortner
 ```
 
 ### 2️⃣ Create & Configure Environment Variables
@@ -67,7 +67,7 @@ This will spin up:
 **Request:**
 
 ```http
-POST /api/shorten/
+POST /api/shortner/
 Content-Type: application/json
 {
     "original_url": "https://example.com/very-long-url"
@@ -78,7 +78,7 @@ Content-Type: application/json
 
 ```json
 {
-  "short_url": "http://localhost:8000/s/hxYz1a"
+  "short_url": "http://localhost:8000/api/hxYz1a"
 }
 ```
 
